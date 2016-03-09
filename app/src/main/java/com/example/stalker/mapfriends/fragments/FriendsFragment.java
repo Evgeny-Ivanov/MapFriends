@@ -1,19 +1,26 @@
-package com.example.stalker.mapfriends;
+package com.example.stalker.mapfriends.fragments;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Fragment;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.example.stalker.mapfriends.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FriendsActivity extends AppCompatActivity
-        implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener{
+/**
+ * Created by stalker on 09.03.16.
+ */
+public class FriendsFragment extends Fragment
+    implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener{
 
     private ListView friends;
     private String[] names = {
@@ -24,12 +31,22 @@ public class FriendsActivity extends AppCompatActivity
     final String ATTRIBUTE_NAME_TEXT = "name";
     final String ATTRIBUTE_NAME_IMAGE = "image";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friends);
+    @Override//что отрисовать во фрагменте
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,Bundle savedInstanceState){
+        return inflater.inflate(R.layout.fragment_friends,null);
+    }
 
-        friends = (ListView)findViewById(R.id.listFriends);
+    @Override//нет доступа к ui
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override//доступ к ui появился
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        friends = (ListView)getActivity().findViewById(R.id.listFriends);
         friends.setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
         friends.setOnItemClickListener(this);
         friends.setOnScrollListener(this);
@@ -48,8 +65,9 @@ public class FriendsActivity extends AppCompatActivity
         String[] from = { ATTRIBUTE_NAME_TEXT, ATTRIBUTE_NAME_IMAGE };
         int[] to = { R.id.tvText, R.id.ivImg };
 
-        SimpleAdapter adapter = new SimpleAdapter(this,friendsData,R.layout.item_friend,from,to);
+        SimpleAdapter adapter = new SimpleAdapter(getActivity(),friendsData,R.layout.item_friend,from,to);
         friends.setAdapter(adapter);
+
     }
 
     @Override//действие на нажатие на пункт

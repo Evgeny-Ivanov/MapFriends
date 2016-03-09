@@ -1,12 +1,14 @@
 package com.example.stalker.mapfriends;
 
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -23,6 +25,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 public class MenuActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener {
 
+    FriendsFragment friendsFragment;
     private Drawer result;
     private AccountHeader accountHeader;
 
@@ -30,6 +33,8 @@ public class MenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        friendsFragment = new FriendsFragment();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
@@ -83,7 +88,10 @@ public class MenuActivity extends AppCompatActivity
             case 0:
                 break;
             case 1:
-                startActivity(new Intent(this,FriendsActivity.class));
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();//все работа с фрагментами происходит в транзакции
+                transaction.add(R.id.fragmentContainer, friendsFragment);//добавляем фрагмент
+                transaction.addToBackStack(null);//остановить фрагмент а не уничтожить при удалении
+                transaction.commit();
                 break;
         }
         return false;
