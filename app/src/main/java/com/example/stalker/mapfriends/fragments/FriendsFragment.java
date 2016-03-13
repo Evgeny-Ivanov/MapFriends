@@ -46,7 +46,8 @@ public class FriendsFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        friends = (ListView)getActivity().findViewById(R.id.listFriends);
+        //getView - ссылка на фрагмент
+        friends = (ListView)getView().findViewById(R.id.listFriends);
         friends.setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
         friends.setOnItemClickListener(this);
         friends.setOnScrollListener(this);
@@ -67,7 +68,6 @@ public class FriendsFragment extends Fragment
 
         SimpleAdapter adapter = new SimpleAdapter(getActivity(),friendsData,R.layout.item_friend,from,to);
         friends.setAdapter(adapter);
-
     }
 
     @Override//действие на нажатие на пункт

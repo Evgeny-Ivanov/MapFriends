@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:context=".MenuActivity">
+    tools:context=".MainActivity">
 
     <com.andexert.library.RippleView
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,8 +22,8 @@
     </com.andexert.library.RippleView>
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@+id/toolbarRippleView"
         android:id="@+id/fragmentContainer">
     </FrameLayout>

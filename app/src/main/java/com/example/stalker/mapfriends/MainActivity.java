@@ -2,12 +2,12 @@ package com.example.stalker.mapfriends;
 
 
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -22,12 +22,14 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 
 //http://java-help.ru/material-navigationdrawer/
-public class MenuActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener {
 
     FriendsFragment friendsFragment;
-    private Drawer result;
+    AuthFragment authFragment;
+    private Drawer drawer;
     private AccountHeader accountHeader;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +37,9 @@ public class MenuActivity extends AppCompatActivity
         setContentView(R.layout.activity_menu);
 
         friendsFragment = new FriendsFragment();
+        authFragment = new AuthFragment();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
 
         String name = "Иванов Евгений";//надо доставать из vk
@@ -53,7 +56,7 @@ public class MenuActivity extends AppCompatActivity
                 .withTextColorRes(R.color.md_white_1000)
                 .build();
 
-        result = new DrawerBuilder()
+        drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withActionBarDrawerToggle(true)//включаем стрелку
@@ -78,35 +81,41 @@ public class MenuActivity extends AppCompatActivity
                         new DrawerItem()
                                 .withName(R.string.drawer_item_contact)
                                 .withIcon(FontAwesome.Icon.faw_github)
+                                .withIdentifier(2)
                 )
                 .build();
     }
 
     @Override//нажатие на пункт меню
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();//вся работа с фрагментами происходит в транзакции
         switch((int)drawerItem.getIdentifier()){
             case 0:
                 break;
             case 1:
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();//все работа с фрагментами происходит в транзакции
-                transaction.add(R.id.fragmentContainer, friendsFragment);//добавляем фрагмент
-                transaction.addToBackStack(null);//остановить фрагмент а не уничтожить при удалении
+                transaction.setCustomAnimations(R.animator.fragment_show,R.animator.fragment_hide);
+                transaction.replace(R.id.fragmentContainer, friendsFragment);//добавляем фрагмент
+                //transaction.addToBackStack(null);//добавить в стек
+                transaction.commit();
+                break;
+            case 2:
+                transaction.setCustomAnimations(R.animator.fragment_show,R.animator.fragment_hide);
+                transaction.replace(R.id.fragmentContainer, authFragment);
                 transaction.commit();
                 break;
         }
         return false;
     }
 
-    @Override//нажатие на изображеие профиля
+    @Override//нажатие на изображение профиля
     public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-        startActivity(new Intent(this,AuthActivity.class));
         return true;
     }
 
     @Override//при нажатии на кнопку назад закрываем менюшку
     public void onBackPressed(){
-        if(result != null && result.isDrawerOpen()){
-            result.closeDrawer();
+        if(drawer != null && drawer.isDrawerOpen()){
+            drawer.closeDrawer();
         } else {
             super.onBackPressed();
         }
@@ -116,9 +125,12 @@ public class MenuActivity extends AppCompatActivity
         public DrawerItem(){
             super();
             withSelectedColorRes(R.color.primary_dark);
-            withOnDrawerItemClickListener(MenuActivity.this);
+            withOnDrawerItemClickListener(MainActivity.this);
             withSelectedIconColorRes(R.color.md_white_1000);
             withSelectedTextColorRes(R.color.md_white_1000);
         }
     }
 }
+
+
+
