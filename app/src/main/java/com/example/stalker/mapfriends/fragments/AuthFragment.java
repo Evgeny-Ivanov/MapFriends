@@ -13,16 +13,8 @@ import com.example.stalker.mapfriends.R;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKApi;
-import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
-import com.vk.sdk.api.VKParameters;
-import com.vk.sdk.api.VKRequest;
-import com.vk.sdk.api.VKResponse;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by stalker on 10.03.16.
@@ -57,8 +49,8 @@ public class AuthFragment extends Fragment
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {// Пользователь успешно авторизовался
-                VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS));
-                request.executeWithListener(example);
+                OnSuccessAuth activity = ((OnSuccessAuth) getActivity());
+                activity.onSuccessAuth();//рекомендация от google - запилить интерфейст в фрагменте и реализовывать его в активити
             }
             @Override
             public void onError(VKError error) {// Произошла ошибка авторизации (например, пользователь запретил авторизацию)
@@ -69,30 +61,8 @@ public class AuthFragment extends Fragment
         }
     }
 
-    private VKRequest.VKRequestListener example = new VKRequest.VKRequestListener() {
-        @Override
-        public void onComplete(VKResponse response) {//Do complete stuff
-            String last_name = "error";
-            String first_name = "error";
-            try {
-                JSONObject responseJSON = response.json.getJSONArray("response").getJSONObject(0);
-                last_name = (String)responseJSON.get("last_name");
-                first_name = (String)responseJSON.get("first_name");
-            }catch (JSONException e){
-                e.printStackTrace();
-            }
-            responseView.setText("Привет "+ first_name + " "+ last_name);
-        }
-
-        @Override
-        public void onError(VKError error) {
-            responseView.setText(error.toString());
-        }
-
-        @Override
-        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {//I don't really believe in progress
-
-        }
-    };
+    public interface OnSuccessAuth{
+        void onSuccessAuth();
+    }
 
 }

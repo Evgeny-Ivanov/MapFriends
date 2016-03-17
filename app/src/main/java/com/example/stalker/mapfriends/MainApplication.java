@@ -12,6 +12,6 @@ public class MainApplication extends Application {
     @Override
     public void onCreate(){
         super.onCreate();
-        VKSdk.initialize(this);//VKsdk требует инициализацию тут, иначе exeption
+        VKSdk.initialize(this);//VKsdk требует инициализацию тут, иначе exception
     }
 }

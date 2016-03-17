@@ -18,10 +18,15 @@
             android:theme="@style/VK.Transparent" />
         <activity android:name=".SplashActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
 
-</manifest>
+</manifest><!--
+ exported=false - закрыть сервис
+    isolatedProcess - запусить сервис в отдельном процессе
+    ( при запуске сервиса из других приложенек у них не будет доступа до нашего приложения)
+-->

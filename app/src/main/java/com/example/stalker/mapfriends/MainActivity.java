@@ -2,12 +2,13 @@ package com.example.stalker.mapfriends;
 
 
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -19,6 +20,17 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.VKParameters;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
+import com.vk.sdk.api.model.VKPhotoArray;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 //http://java-help.ru/material-navigationdrawer/
@@ -26,7 +38,6 @@ public class MainActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener {
 
     FriendsFragment friendsFragment;
-    AuthFragment authFragment;
     private Drawer drawer;
     private AccountHeader accountHeader;
     private Toolbar toolbar;
@@ -35,14 +46,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-
         friendsFragment = new FriendsFragment();
-        authFragment = new AuthFragment();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
 
-        String name = "Иванов Евгений";//надо доставать из vk
+        VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS,"photo_200"));
+        request.executeWithListener(example);
+    }
+
+    private void createDrawer(String name){
         IProfile profile = new ProfileDrawerItem()
                 .withName(name)
                 .withIcon(R.drawable.img_default);
@@ -53,7 +66,6 @@ public class MainActivity extends AppCompatActivity
                 .addProfiles(profile)
                 .withSelectionListEnabled(false)//выключить список профилей
                 .withOnAccountHeaderListener(this)
-                .withTextColorRes(R.color.md_white_1000)
                 .build();
 
         drawer = new DrawerBuilder()
@@ -62,11 +74,11 @@ public class MainActivity extends AppCompatActivity
                 .withActionBarDrawerToggle(true)//включаем стрелку
                 .withActionBarDrawerToggleAnimated(true)//анимация стрелки
                 .withAccountHeader(accountHeader)
-                .withSliderBackgroundColorRes(R.color.primary)//цвет
                 .addDrawerItems(
                         new DrawerItem()
                                 .withName(R.string.drawer_item_my_map)
-                                .withIcon(FontAwesome.Icon.faw_map),
+                                .withIcon(FontAwesome.Icon.faw_map)
+                                .withIdentifier(0),
                         new DrawerItem()
                                 .withName(R.string.drawer_item_friends)
                                 .withIcon(FontAwesome.Icon.faw_vk)
@@ -77,11 +89,12 @@ public class MainActivity extends AppCompatActivity
 
                         new DrawerItem()
                                 .withName(R.string.drawer_item_settings)
-                                .withIcon(FontAwesome.Icon.faw_anchor),
+                                .withIcon(FontAwesome.Icon.faw_anchor)
+                                .withIdentifier(2),
                         new DrawerItem()
                                 .withName(R.string.drawer_item_contact)
                                 .withIcon(FontAwesome.Icon.faw_github)
-                                .withIdentifier(2)
+                                .withIdentifier(3)
                 )
                 .build();
     }
@@ -99,9 +112,10 @@ public class MainActivity extends AppCompatActivity
                 transaction.commit();
                 break;
             case 2:
-                transaction.setCustomAnimations(R.animator.fragment_show,R.animator.fragment_hide);
-                transaction.replace(R.id.fragmentContainer, authFragment);
-                transaction.commit();
+                VKSdk.logout();
+                Intent intent = new Intent(this,SplashActivity.class);
+                startActivity(intent);
+                finish();
                 break;
         }
         return false;
@@ -124,12 +138,39 @@ public class MainActivity extends AppCompatActivity
     private class DrawerItem extends PrimaryDrawerItem {//база для пунктов меню
         public DrawerItem(){
             super();
-            withSelectedColorRes(R.color.primary_dark);
             withOnDrawerItemClickListener(MainActivity.this);
-            withSelectedIconColorRes(R.color.md_white_1000);
-            withSelectedTextColorRes(R.color.md_white_1000);
         }
     }
+
+
+    private VKRequest.VKRequestListener example = new VKRequest.VKRequestListener() {
+        @Override
+        public void onComplete(VKResponse response) {//Do complete stuff
+            String last_name = "error";
+            String first_name = "error";
+            try {
+                JSONObject responseJSON = response.json.getJSONArray("response").getJSONObject(0);
+                last_name = (String)responseJSON.get("last_name");
+                first_name = (String)responseJSON.get("first_name");
+                //VKPhotoArray photoModel = (VKPhotoArray)responseJSON.get("photo_200");
+                createDrawer(last_name + " " + first_name + " 100500");
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void onError(VKError error) {
+        }
+
+        @Override
+        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {//I don't really believe in progress
+
+        }
+    };
+
+
 }
 
 
