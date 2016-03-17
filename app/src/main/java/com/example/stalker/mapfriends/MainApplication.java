@@ -9,6 +9,8 @@ import com.vk.sdk.VKSdk;
  */
 //самый главный класс приложения
 public class MainApplication extends Application {
+    public static String log = "myLog";
+
     @Override
     public void onCreate(){
         super.onCreate();

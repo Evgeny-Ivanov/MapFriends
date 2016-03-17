@@ -1,20 +1,37 @@
 package com.example.stalker.mapfriends.fragments;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.example.stalker.mapfriends.R;
+import com.makeramen.roundedimageview.RoundedImageView;
+import com.squareup.picasso.Picasso;
+import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.VKParameters;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
+import com.vk.sdk.api.model.VKApiUser;
+import com.vk.sdk.api.model.VKApiUserFull;
+import com.vk.sdk.api.model.VKList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.Inflater;
 
 /**
  * Created by stalker on 09.03.16.
@@ -23,13 +40,7 @@ public class FriendsFragment extends Fragment
     implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener{
 
     private ListView friends;
-    private String[] names = {
-            "Иван Иванов", "Марья Иванова", "Петр Иванов", "Антон Иванов",
-            "Даша Иванова", "Борис Иванов", "Костя Иванов",
-            "Игорь Иванов", "Анна Иванова", "Денис Иванов", "Андрей Иванов"
-    };
-    final String ATTRIBUTE_NAME_TEXT = "name";
-    final String ATTRIBUTE_NAME_IMAGE = "image";
+    VKList<VKApiUserFull> friendsVK;
 
     @Override//что отрисовать во фрагменте
     public View onCreateView(LayoutInflater inflater,
@@ -40,6 +51,8 @@ public class FriendsFragment extends Fragment
     @Override//нет доступа к ui
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        VKRequest requestGetFriends = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_100));
+        requestGetFriends.executeWithListener(requestGetFriendsListener);
     }
 
     @Override//доступ к ui появился
@@ -51,23 +64,6 @@ public class FriendsFragment extends Fragment
         friends.setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
         friends.setOnItemClickListener(this);
         friends.setOnScrollListener(this);
-
-        ArrayList<Map<String,Object>> friendsData = new ArrayList<>();
-        Map<String,Object> friendData;
-
-        for(int i=0;i<names.length;i++){
-            friendData = new HashMap<>();
-            friendData.put(ATTRIBUTE_NAME_TEXT, names[i]);//нужно будет доставать из вк
-            friendData.put(ATTRIBUTE_NAME_IMAGE, R.drawable.img_default);
-
-            friendsData.add(friendData);
-        }
-
-        String[] from = { ATTRIBUTE_NAME_TEXT, ATTRIBUTE_NAME_IMAGE };
-        int[] to = { R.id.tvText, R.id.ivImg };
-
-        SimpleAdapter adapter = new SimpleAdapter(getActivity(),friendsData,R.layout.item_friend,from,to);
-        friends.setAdapter(adapter);
     }
 
     @Override//действие на нажатие на пункт
@@ -84,5 +80,65 @@ public class FriendsFragment extends Fragment
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
     }
+
+    private class ItemFriendsAdapter extends BaseAdapter{//адаптер - получает данные и выдает View для отображения пункта списка
+
+        private VKList<VKApiUserFull> users;
+        private Context context;
+        private LayoutInflater inflater;
+
+        ItemFriendsAdapter(Context context,VKList<VKApiUserFull> users){
+            super();
+            this.users = users;
+            this.context = context;
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            return users.getCount();
+        }
+
+        @Override// элемент по позиции
+        public Object getItem(int position) {
+            return users.get(position);
+        }
+
+        @Override// id по позиции
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override// пункт списка
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if(convertView == null) {//android может ипользовать элементы списка
+                                     //созданные ранее но невидные сейчас на экране
+                                     //(что бы не собирать view из xml лишний раз)
+                convertView = inflater.inflate(R.layout.item_friend, parent,false);
+            }
+
+            VKApiUserFull user = (VKApiUserFull)getItem(position);
+
+            TextView name = (TextView)convertView.findViewById(R.id.nameFriend);
+            String fullName = user.last_name + " " + user.first_name;
+            name.setText(fullName);
+
+            Picasso.with(context)
+                    .load(user.photo_100)
+                    .into((ImageView)convertView.findViewById(R.id.imageFriend));
+
+            return convertView;
+        }
+    }
+
+
+    private VKRequest.VKRequestListener requestGetFriendsListener = new VKRequest.VKRequestListener() {
+        @Override
+        public void onComplete(VKResponse response) {
+            super.onComplete(response);
+            friendsVK = (VKList<VKApiUserFull>)response.parsedModel;
+            friends.setAdapter(new ItemFriendsAdapter(getActivity(),friendsVK));
+        }
+    };
 
 }

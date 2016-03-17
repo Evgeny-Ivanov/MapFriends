@@ -3,11 +3,13 @@ package com.example.stalker.mapfriends;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.support.v4.view.ViewCompat;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
@@ -20,6 +22,9 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
+import com.mikepenz.materialdrawer.util.DrawerImageLoader;
+import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -27,11 +32,8 @@ import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKPhotoArray;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.vk.sdk.api.model.VKApiUserFull;
+import com.vk.sdk.api.model.VKList;
 
 //http://java-help.ru/material-navigationdrawer/
 public class MainActivity extends AppCompatActivity
@@ -51,14 +53,30 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
 
-        VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS,"photo_200"));
-        request.executeWithListener(example);
+        VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS,VKApiUserFull.FIELD_PHOTO_200));
+        request.executeWithListener(requestGetUserProfileListener);
     }
 
-    private void createDrawer(String name){
+    private void createDrawer(VKApiUserFull user){
+
+        DrawerImageLoader.init(new AbstractDrawerImageLoader() {//определяем как библиотека будет скачивать изображения
+            @Override
+            public void set(ImageView imageView, Uri uri, Drawable placeholder) {
+                super.set(imageView, uri, placeholder);
+                Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+            }
+
+            @Override
+            public void cancel(ImageView imageView) {
+                super.cancel(imageView);
+                Picasso.with(imageView.getContext()).cancelRequest(imageView);
+            }
+        });
+
+        String fullName = user.last_name + " " + user.first_name;
         IProfile profile = new ProfileDrawerItem()
-                .withName(name)
-                .withIcon(R.drawable.img_default);
+                .withName(fullName)
+                .withIcon(user.photo_200);//теперь библиотека сама скачает изображение
 
         accountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -143,30 +161,12 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private VKRequest.VKRequestListener example = new VKRequest.VKRequestListener() {
+    private VKRequest.VKRequestListener requestGetUserProfileListener = new VKRequest.VKRequestListener() {
         @Override
-        public void onComplete(VKResponse response) {//Do complete stuff
-            String last_name = "error";
-            String first_name = "error";
-            try {
-                JSONObject responseJSON = response.json.getJSONArray("response").getJSONObject(0);
-                last_name = (String)responseJSON.get("last_name");
-                first_name = (String)responseJSON.get("first_name");
-                //VKPhotoArray photoModel = (VKPhotoArray)responseJSON.get("photo_200");
-                createDrawer(last_name + " " + first_name + " 100500");
-            }catch (JSONException e){
-                e.printStackTrace();
-            }
-
-        }
-
-        @Override
-        public void onError(VKError error) {
-        }
-
-        @Override
-        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {//I don't really believe in progress
-
+        public void onComplete(VKResponse response) {//успех
+            VKList<VKApiUserFull> usersArray = (VKList<VKApiUserFull>)response.parsedModel;
+            VKApiUserFull userFull = usersArray.get(0);
+            createDrawer(userFull);
         }
     };
 

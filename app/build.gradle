@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.mikepenz:materialdrawer:5.0.9'//боковое меню
@@ -28,4 +28,6 @@ dependencies {
     compile 'com.makeramen:roundedimageview:2.2.1'//круглые,элиптические изображения
     compile 'com.github.traex.rippleeffect:library:1.3'//эффект волны при нажатии
     compile 'com.vk:androidsdk:+'//vk sdk
+    compile 'com.squareup.picasso:picasso:2.5.2'//загрузка изображений из сети
+    compile 'com.google.code.gson:gson:2.6.2'//библиотечка для работы с json
 }

@@ -18,7 +18,7 @@
 
             <com.makeramen.roundedimageview.RoundedImageView
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/ivImg"
+                android:id="@+id/imageFriend"
                 android:src="@drawable/img_default"
                 android:scaleType="fitCenter"
                 app:riv_border_width="1dip"
@@ -28,11 +28,11 @@
                 android:layout_height="100dp"/>
 
             <TextView
-                android:id="@+id/tvText"
+                android:id="@+id/nameFriend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:layout_toRightOf="@+id/ivImg"
+                android:layout_toRightOf="@+id/imageFriend"
                 android:layout_marginLeft="20dp"
                 android:text="TextView"
                 android:textSize="18dp">
