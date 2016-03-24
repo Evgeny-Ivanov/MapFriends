@@ -1,8 +1,13 @@
 package com.example.stalker.mapfriends;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
 
 import com.vk.sdk.VKSdk;
+import com.example.stalker.mapfriends.services.СoordinatesSaveService;
 
 /**
  * Created by stalker on 12.03.16.

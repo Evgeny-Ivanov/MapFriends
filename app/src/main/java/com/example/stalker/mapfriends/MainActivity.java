@@ -3,6 +3,7 @@ package com.example.stalker.mapfriends;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -28,12 +29,14 @@ import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
-import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiUserFull;
 import com.vk.sdk.api.model.VKList;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 //http://java-help.ru/material-navigationdrawer/
 public class MainActivity extends AppCompatActivity
@@ -166,6 +169,13 @@ public class MainActivity extends AppCompatActivity
         public void onComplete(VKResponse response) {//успех
             VKList<VKApiUserFull> usersArray = (VKList<VKApiUserFull>)response.parsedModel;
             VKApiUserFull userFull = usersArray.get(0);
+            //SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            //preferences.edit().putString("asdfad", response.responseString);
+            //try {
+            //    VKList<VKApiUserFull> d = new VKList<VKApiUserFull>(new JSONObject(response.responseString),VKApiUserFull.class);
+            //}catch (JSONException e){
+            //    e.printStackTrace();
+            //}
             createDrawer(userFull);
         }
     };
