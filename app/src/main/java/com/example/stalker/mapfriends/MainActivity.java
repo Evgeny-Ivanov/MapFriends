@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -29,36 +32,56 @@ import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiUserFull;
 import com.vk.sdk.api.model.VKList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 //http://java-help.ru/material-navigationdrawer/
 public class MainActivity extends AppCompatActivity
-        implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener {
+        implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,AuthFragment.OnSuccessAuth {
 
     FriendsFragment friendsFragment;
     private Drawer drawer;
     private AccountHeader accountHeader;
     private Toolbar toolbar;
+    private VKApiUserFull currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        if(savedInstanceState != null){
+            currentUser = savedInstanceState.getParcelable("user");
+        }
         friendsFragment = new FriendsFragment();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
 
-        VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS,VKApiUserFull.FIELD_PHOTO_200));
-        request.executeWithListener(requestGetUserProfileListener);
-        createDrawer(new VKApiUserFull());
+        //тут нужно решить какой фрагмент показывать - фрагмент авторизации или карту
+        if (VKSdk.isLoggedIn()) {
+            onSuccessAuth();
+        } else {
+            AuthFragment authFragment = new AuthFragment();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragmentContainer, authFragment);
+            transaction.commit();
+        }
+    }
+
+    @Override
+    public void onSuccessAuth() {
+        if(currentUser == null) {
+            VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_200));
+            request.executeWithListener(requestGetUserProfileListener);
+        } else {
+            Log.d(MainApplication.log,"create Drawer current User");
+            createDrawer(currentUser);
+        }
     }
 
     private void createDrawer(VKApiUserFull user){
@@ -67,13 +90,19 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder) {
                 super.set(imageView, uri, placeholder);
-                Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+                Picasso
+                        .with(imageView.getContext())
+                        .load(uri).placeholder(placeholder)
+                        .error(R.drawable.img_default)
+                        .into(imageView);
             }
 
             @Override
             public void cancel(ImageView imageView) {
                 super.cancel(imageView);
-                Picasso.with(imageView.getContext()).cancelRequest(imageView);
+                Picasso
+                        .with(imageView.getContext())
+                        .cancelRequest(imageView);
             }
         });
 
@@ -157,6 +186,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {//сохраняем данные при повороте экрана
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("user", currentUser);
+        Log.d(MainApplication.log, "save");
+    }
+
     private class DrawerItem extends PrimaryDrawerItem {//база для пунктов меню
         public DrawerItem(){
             super();
@@ -170,14 +206,16 @@ public class MainActivity extends AppCompatActivity
         public void onComplete(VKResponse response) {//успех
             VKList<VKApiUserFull> usersArray = (VKList<VKApiUserFull>)response.parsedModel;
             VKApiUserFull userFull = usersArray.get(0);
-            //SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-            //preferences.edit().putString("asdfad", response.responseString);
-            //try {
-            //    VKList<VKApiUserFull> d = new VKList<VKApiUserFull>(new JSONObject(response.responseString),VKApiUserFull.class);
-            //}catch (JSONException e){
-            //    e.printStackTrace();
-            //}
+            currentUser = userFull;
             createDrawer(userFull);
+        }
+
+        @Override
+        public void onError(VKError error) {
+            VKApiUserFull defaultUser = new VKApiUserFull();
+            defaultUser.last_name = "Черный";
+            defaultUser.first_name = "Плащ";
+            createDrawer(defaultUser);
         }
     };
 

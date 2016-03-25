@@ -3,6 +3,7 @@ package com.example.stalker.mapfriends.fragments;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,9 +34,11 @@ public class AuthFragment extends Fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        AppCompatActivity mainActivity = (AppCompatActivity)getActivity();
+        mainActivity.getSupportActionBar().setTitle(R.string.titleAuth);
+
         ImageView authButton = (ImageView)getView().findViewById(R.id.authButton);
         authButton.setOnClickListener(this);
-
         responseView = (TextView)getView().findViewById(R.id.textAuth);
     }
 

@@ -9,7 +9,14 @@
         android:dividerHeight="7dp"
         android:divider="@null"
         android:padding="5dp"
-        android:id="@+id/listFriends">
+        android:id="@+id/android:list">
     </ListView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@id/android:empty"
+        android:text="@string/emptyListView"
+        android:layout_centerInParent="true"/>
 
 </RelativeLayout>

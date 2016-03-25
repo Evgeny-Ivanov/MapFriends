@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MapFriends</string>
+    <string name="emptyListView">У вас нет друзей</string>
 </resources>

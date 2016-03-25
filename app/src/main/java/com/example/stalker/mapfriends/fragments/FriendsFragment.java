@@ -1,9 +1,10 @@
 package com.example.stalker.mapfriends.fragments;
 
-import android.app.Fragment;
 import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.R;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.api.VKApi;
@@ -28,10 +30,9 @@ import com.vk.sdk.api.model.VKList;
 /**
  * Created by stalker on 09.03.16.
  */
-public class FriendsFragment extends Fragment
+public class FriendsFragment extends ListFragment
     implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener{
 
-    private ListView friends;
     VKList<VKApiUserFull> friendsVK;
 
     @Override//что отрисовать во фрагменте
@@ -40,22 +41,40 @@ public class FriendsFragment extends Fragment
         return inflater.inflate(R.layout.fragment_friends,null);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("friends",friendsVK);
+    }
+
     @Override//нет доступа к ui
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        VKRequest requestGetFriends = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_100));
-        requestGetFriends.executeWithListener(requestGetFriendsListener);
     }
 
     @Override//доступ к ui появился
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        AppCompatActivity mainActivity = (AppCompatActivity)getActivity();
+        mainActivity.getSupportActionBar().setTitle(R.string.titleFriends);
 
         //getView - ссылка на фрагмент
-        friends = (ListView)getView().findViewById(R.id.listFriends);
-        friends.setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
-        friends.setOnItemClickListener(this);
-        friends.setOnScrollListener(this);
+        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
+        getListView().setOnItemClickListener(this);
+        getListView().setOnScrollListener(this);
+
+        if(savedInstanceState != null) {
+            Log.d(MainApplication.log,"savedInstanceState != null");
+            friendsVK = savedInstanceState.getParcelable("friends");
+            if(friendsVK != null)
+                getListView().setAdapter(new ItemFriendsAdapter(getActivity(), friendsVK));
+        }
+
+        if(friendsVK == null) {
+            VKRequest requestGetFriends = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_100));
+            requestGetFriends.executeWithListener(requestGetFriendsListener);
+        }
+
     }
 
     @Override//действие на нажатие на пункт
@@ -117,7 +136,8 @@ public class FriendsFragment extends Fragment
 
             Picasso.with(context)
                     .load(user.photo_100)
-                    .into((ImageView)convertView.findViewById(R.id.imageFriend));
+                    .error(R.drawable.img_default)
+                    .into((ImageView) convertView.findViewById(R.id.imageFriend));
 
             return convertView;
         }
@@ -129,7 +149,7 @@ public class FriendsFragment extends Fragment
         public void onComplete(VKResponse response) {
             super.onComplete(response);
             friendsVK = (VKList<VKApiUserFull>)response.parsedModel;
-            friends.setAdapter(new ItemFriendsAdapter(getActivity(),friendsVK));
+            getListView().setAdapter(new ItemFriendsAdapter(getActivity(), friendsVK));
         }
     };
 

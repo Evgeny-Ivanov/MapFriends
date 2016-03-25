@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="titleAuth">Вход</string>
+    <string name="titleMap">Моя карта</string>
+    <string name="titleMapFriend">Карта друга</string>
+    <string name="titleFriends">Друзья</string>
+    <string name="titleSettings">Настройки</string>
+    <string name="titleContact">Контакты</string>
+</resources>
