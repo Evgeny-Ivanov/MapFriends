@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity
 
         VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS,VKApiUserFull.FIELD_PHOTO_200));
         request.executeWithListener(requestGetUserProfileListener);
+        createDrawer(new VKApiUserFull());
     }
 
     private void createDrawer(VKApiUserFull user){

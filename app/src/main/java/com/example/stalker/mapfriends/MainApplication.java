@@ -1,13 +1,11 @@
 package com.example.stalker.mapfriends;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 
 
+import com.example.stalker.mapfriends.coordinatesSave.CoordinatesSaveService;
 import com.vk.sdk.VKSdk;
-import com.example.stalker.mapfriends.services.СoordinatesSaveService;
 
 /**
  * Created by stalker on 12.03.16.
@@ -20,5 +18,7 @@ public class MainApplication extends Application {
     public void onCreate(){
         super.onCreate();
         VKSdk.initialize(this);//VKsdk требует инициализацию тут, иначе exception
+        Intent startServiceIntent = new Intent(this,CoordinatesSaveService.class);
+        this.startService(startServiceIntent);
     }
 }

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -29,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".services.СoordinatesSaveService">
+        <service android:name=".coordinatesSave.CoordinatesSaveService">
             <intent-filter>
                 <action android:name="android.intent.action.ACCESS_FINE_LOCATION"/>
             </intent-filter>
@@ -37,17 +38,16 @@
 
         <!--Получаем права на запуск сервиса при старте телефона -->
         <receiver
-            android:name=".CoordinatesSaveStartServiceReceiver"
+            android:name=".coordinatesSave.CoordinatesSaveStartServiceReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
     </application>
 
-</manifest><!--
- exported=false - закрыть сервис
-    isolatedProcess - запусить сервис в отдельном процессе
-    ( при запуске сервиса из других приложенек у них не будет доступа до нашего приложения)
--->
+</manifest>
+
+    <!--exported=false - закрыть сервис -->
