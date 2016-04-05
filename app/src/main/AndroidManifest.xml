@@ -10,6 +10,23 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- проверка достепности интернета -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- сохранение кэша карт -->
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <!-- доступ к гугл-веб-сервисам -->
+
+
+    <!-- определение местоположения: -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- ограничение на девайсы которые не поддерживают OpenGL ES 2 для карт -->
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:name=".MainApplication"
@@ -30,24 +47,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name=".coordinatesSave.CoordinatesSaveService">
             <intent-filter>
-                <action android:name="android.intent.action.ACCESS_FINE_LOCATION"/>
+                <action android:name="android.intent.action.ACCESS_FINE_LOCATION" />
             </intent-filter>
         </service>
 
-        <!--Получаем права на запуск сервиса при старте телефона -->
+        <!-- Получаем права на запуск сервиса при старте телефона -->
         <receiver
             android:name=".coordinatesSave.CoordinatesSaveStartServiceReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
     </application>
 
 </manifest>
-
-    <!--exported=false - закрыть сервис -->

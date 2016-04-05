@@ -17,7 +17,8 @@
             android:layout_centerInParent="true"
             android:gravity="center"
             android:orientation="vertical"
-            android:background="@android:drawable/dialog_holo_light_frame">
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:id="@+id/linearLayout">
 
             <TextView
                 android:layout_width="wrap_content"

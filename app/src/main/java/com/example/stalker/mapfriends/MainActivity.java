@@ -3,19 +3,20 @@ package com.example.stalker.mapfriends;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
+import com.example.stalker.mapfriends.fragments.MapsFragment;
+import com.google.android.gms.maps.MapFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -44,10 +45,13 @@ public class MainActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,AuthFragment.OnSuccessAuth {
 
     FriendsFragment friendsFragment;
+    MapsFragment mapsFragment;
     private Drawer drawer;
     private AccountHeader accountHeader;
     private Toolbar toolbar;
     private VKApiUserFull currentUser;
+    private ProgressBar progressBar;
+    private Integer drawerSaveCurrentSelection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,20 +60,23 @@ public class MainActivity extends AppCompatActivity
 
         if(savedInstanceState != null){
             currentUser = savedInstanceState.getParcelable("user");
+            drawerSaveCurrentSelection = savedInstanceState.getInt("currentSelection");
         }
         friendsFragment = new FriendsFragment();
+        mapsFragment = new MapsFragment();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
+        progressBar = (ProgressBar)findViewById(R.id.progressBar);
 
-        //тут нужно решить какой фрагмент показывать - фрагмент авторизации или карту
-        if (VKSdk.isLoggedIn()) {
-            onSuccessAuth();
+        if (!VKSdk.isLoggedIn()) {
+            showFragment(Fragments.AUTH);
         } else {
-            AuthFragment authFragment = new AuthFragment();
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragmentContainer, authFragment);
-            transaction.commit();
+            onSuccessAuth();
+            if (drawerSaveCurrentSelection != null)
+                showFragment(drawerSaveCurrentSelection);
+            else
+                showFragment(Fragments.MAPS);
         }
     }
 
@@ -79,13 +86,12 @@ public class MainActivity extends AppCompatActivity
             VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_200));
             request.executeWithListener(requestGetUserProfileListener);
         } else {
-            Log.d(MainApplication.log,"create Drawer current User");
+            Log.d(MainApplication.log, "create Drawer current User");
             createDrawer(currentUser);
         }
     }
 
     private void createDrawer(VKApiUserFull user){
-
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {//определяем как библиотека будет скачивать изображения
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder) {
@@ -129,11 +135,11 @@ public class MainActivity extends AppCompatActivity
                         new DrawerItem()
                                 .withName(R.string.drawer_item_my_map)
                                 .withIcon(FontAwesome.Icon.faw_map)
-                                .withIdentifier(0),
+                                .withIdentifier(Fragments.MAPS),
                         new DrawerItem()
                                 .withName(R.string.drawer_item_friends)
                                 .withIcon(FontAwesome.Icon.faw_vk)
-                                .withIdentifier(1),
+                                .withIdentifier(Fragments.FRIENDS),
 
                         new SectionDrawerItem()
                                 .withName(R.string.drawer_item_extra),
@@ -141,34 +147,61 @@ public class MainActivity extends AppCompatActivity
                         new DrawerItem()
                                 .withName(R.string.drawer_item_settings)
                                 .withIcon(FontAwesome.Icon.faw_anchor)
-                                .withIdentifier(2),
+                                .withIdentifier(Fragments.SETTINGS),
                         new DrawerItem()
                                 .withName(R.string.drawer_item_contact)
                                 .withIcon(FontAwesome.Icon.faw_github)
-                                .withIdentifier(3)
+                                .withIdentifier(Fragments.CONTACTS)
                 )
                 .build();
+        if(drawerSaveCurrentSelection != null){
+            drawer.setSelection(drawerSaveCurrentSelection);
+        }
     }
 
-    @Override//нажатие на пункт меню
-    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+    private void showFragment(int position){
+        progressBar.setVisibility(ProgressBar.VISIBLE);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();//вся работа с фрагментами происходит в транзакции
-        switch((int)drawerItem.getIdentifier()){
-            case 0:
-                break;
-            case 1:
-                transaction.setCustomAnimations(R.animator.fragment_show,R.animator.fragment_hide);
-                transaction.replace(R.id.fragmentContainer, friendsFragment);//добавляем фрагмент
-                //transaction.addToBackStack(null);//добавить в стек
+
+        MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
+        if(mapFragment != null)//если не удалять при повторном создании карты будет конфликт
+            transaction.remove(mapFragment);
+
+        transaction.setCustomAnimations(R.animator.fragment_show, R.animator.fragment_hide);
+        switch(position){
+            case Fragments.MAPS:
+                getSupportActionBar().setTitle(R.string.titleMap);
+                transaction.replace(R.id.fragmentContainer, mapsFragment);
                 transaction.commit();
                 break;
-            case 2:
+            case Fragments.FRIENDS:
+                getSupportActionBar().setTitle(R.string.titleFriends);
+                transaction.replace(R.id.fragmentContainer, friendsFragment);
+                transaction.commit();
+                break;
+            case Fragments.SETTINGS:
+                getSupportActionBar().setTitle(R.string.titleSettings);
                 VKSdk.logout();
                 Intent intent = new Intent(this,SplashActivity.class);
                 startActivity(intent);
                 finish();
                 break;
+            case Fragments.CONTACTS:
+                getSupportActionBar().setTitle(R.string.titleContact);
+                break;
+            case Fragments.AUTH:
+                getSupportActionBar().setTitle(R.string.titleAuth);
+                AuthFragment authFragment = new AuthFragment();
+                transaction.replace(R.id.fragmentContainer, authFragment);
+                transaction.commit();
+                break;
         }
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+    }
+
+    @Override//нажатие на пункт меню
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        showFragment((int) drawerItem.getIdentifier());
         return false;
     }
 
@@ -190,6 +223,10 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {//сохраняем данные при повороте экрана
         super.onSaveInstanceState(outState);
         outState.putParcelable("user", currentUser);
+        if(drawer != null) {
+            Long currentSelection =  drawer.getCurrentSelection();
+            outState.putInt("currentSelection",currentSelection.intValue());
+        }
         Log.d(MainApplication.log, "save");
     }
 
@@ -219,6 +256,13 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+    private class Fragments  {
+        public static final int MAPS = 0;
+        public static final int FRIENDS = 1;
+        public static final int SETTINGS = 2;
+        public static final int CONTACTS = 3;
+        public static final int AUTH = 4;
+    }
 
 }
 

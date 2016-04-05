@@ -3,7 +3,6 @@ package com.example.stalker.mapfriends.fragments;
 import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,9 +54,6 @@ public class FriendsFragment extends ListFragment
     @Override//доступ к ui появился
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        AppCompatActivity mainActivity = (AppCompatActivity)getActivity();
-        mainActivity.getSupportActionBar().setTitle(R.string.titleFriends);
-
         //getView - ссылка на фрагмент
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
         getListView().setOnItemClickListener(this);
