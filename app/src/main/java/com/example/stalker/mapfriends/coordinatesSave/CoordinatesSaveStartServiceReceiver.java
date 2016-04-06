@@ -15,7 +15,6 @@ public class CoordinatesSaveStartServiceReceiver extends BroadcastReceiver {//с
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context,"Start CoordinatesService in CoordinatesSaveStartServiceReceiver",Toast.LENGTH_SHORT);
         Log.d(MainApplication.log, "Start CoordinatesService");
         Intent startServiceIntent = new Intent(context,CoordinatesSaveService.class);
         context.startService(startServiceIntent);

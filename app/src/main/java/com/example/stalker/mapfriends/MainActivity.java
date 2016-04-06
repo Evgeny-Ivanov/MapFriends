@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 
 import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
-import com.example.stalker.mapfriends.fragments.MapsFragment;
+import com.example.stalker.mapfriends.fragments.MapCustomFragment;
 import com.google.android.gms.maps.MapFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -44,8 +44,6 @@ import com.vk.sdk.api.model.VKList;
 public class MainActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,AuthFragment.OnSuccessAuth {
 
-    FriendsFragment friendsFragment;
-    MapsFragment mapsFragment;
     private Drawer drawer;
     private AccountHeader accountHeader;
     private Toolbar toolbar;
@@ -58,12 +56,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
+
         if(savedInstanceState != null){
             currentUser = savedInstanceState.getParcelable("user");
             drawerSaveCurrentSelection = savedInstanceState.getInt("currentSelection");
         }
-        friendsFragment = new FriendsFragment();
-        mapsFragment = new MapsFragment();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
@@ -171,11 +168,18 @@ public class MainActivity extends AppCompatActivity
         switch(position){
             case Fragments.MAPS:
                 getSupportActionBar().setTitle(R.string.titleMap);
-                transaction.replace(R.id.fragmentContainer, mapsFragment);
+                MapCustomFragment mapCustomFragment = new MapCustomFragment();
+
+                Bundle arguments = new Bundle();
+                arguments.putInt(MapCustomFragment.BUNDLE_ID_USER,33);
+                mapCustomFragment.setArguments(arguments);
+
+                transaction.replace(R.id.fragmentContainer, mapCustomFragment);
                 transaction.commit();
                 break;
             case Fragments.FRIENDS:
                 getSupportActionBar().setTitle(R.string.titleFriends);
+                FriendsFragment friendsFragment = new FriendsFragment();
                 transaction.replace(R.id.fragmentContainer, friendsFragment);
                 transaction.commit();
                 break;

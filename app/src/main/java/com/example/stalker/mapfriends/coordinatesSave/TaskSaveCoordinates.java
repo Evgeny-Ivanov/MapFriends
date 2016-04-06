@@ -13,23 +13,24 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.example.stalker.mapfriends.MainApplication;
+import com.example.stalker.mapfriends.db.DBApi;
 import com.example.stalker.mapfriends.db.DBHelper;
 
 /**
  * Created by stalker on 25.03.16.
  */
 
-public class TaskSaveCoordinates implements Runnable {
+public class TaskSaveCoordinates implements Runnable  {
     private LocationManager locationManager;
     private int minDistance = 1;//если на такое расстояние изменится местоположение то придут новые координаты.
     private int interval = 10 * 1000;//минимальное время (в миллисекундах) между получением данных
     private Context context;
-    private SQLiteDatabase dbConnection;
+    private DBApi dbApi;
 
-    TaskSaveCoordinates(Context context,SQLiteDatabase dbConnection) {
+    TaskSaveCoordinates(Context context,DBApi dbApi) {
         locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         this.context = context;
-        this.dbConnection = dbConnection;
+        this.dbApi = dbApi;
     }
 
     @Override
@@ -53,16 +54,11 @@ public class TaskSaveCoordinates implements Runnable {
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {//новые данные о местоположении
-            ContentValues contentValuesLocation = new ContentValues();// создаем объект для данных
-            contentValuesLocation.put(DBHelper.COLUMN_LATITUDE,location.getLatitude());
-            contentValuesLocation.put(DBHelper.COLUMN_LONGITUDE,location.getLongitude());
-
-            dbConnection.insert(DBHelper.TABLE_NAME, null, contentValuesLocation);
-
+            dbApi.saveLatLng(location.getLatitude(),location.getLongitude());
             Log.d(MainApplication.log,
                     "LocationListener: " +
-                        "latitude = " + location.getLatitude() +
-                                " longitude = " + location.getLongitude());
+                            "latitude = " + location.getLatitude() +
+                            " longitude = " + location.getLongitude());
         }
 
         @Override
