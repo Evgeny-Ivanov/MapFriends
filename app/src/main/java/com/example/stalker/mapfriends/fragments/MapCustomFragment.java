@@ -14,10 +14,13 @@ import android.view.ViewGroup;
 
 import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.R;
+import com.example.stalker.mapfriends.message.DataAndStatusMsg;
+import com.example.stalker.mapfriends.model.Coor;
 import com.example.stalker.mapfriends.network.CoordinatesServerLoader;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -30,7 +33,7 @@ import java.util.List;
 
 //два основных класса для работы с картой - MapFragment и GoogleMap
 public class MapCustomFragment extends Fragment
-        implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<List<LatLng>> {
+        implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<DataAndStatusMsg> {
     private GoogleMap map;
     public static final String BUNDLE_ID_USER = "idUser";
     private int idUser;
@@ -72,28 +75,30 @@ public class MapCustomFragment extends Fragment
         this.map = map;
         //restartLoader – создание нового лоадера в любом случае
         //getLoader – просто получение лоадера с указанным ID
-        Loader<List<LatLng>> loader = getActivity().getLoaderManager().initLoader(loaderId, getArguments(), this);//создание лоадера если он не существовал
+        Loader<DataAndStatusMsg> loader = getActivity().getLoaderManager().initLoader(loaderId, getArguments(), this);//создание лоадера если он не существовал
         loader.forceLoad();
     }
 
     @Override//вызываетя при создание Loader (при вызове initLoader)
-    public Loader<List<LatLng>> onCreateLoader(int id, Bundle args) {
+    public Loader<DataAndStatusMsg> onCreateLoader(int id, Bundle args) {
         Log.d(MainApplication.log,"onCreateLoader");
         return new CoordinatesServerLoader(getActivity(),args);
     }
 
     @Override//срабатывает когда Loader завершил свою работу и вернул результат
-    public void onLoadFinished(Loader<List<LatLng>> loader, List<LatLng> data) {
+    public void onLoadFinished(Loader<DataAndStatusMsg> loader, DataAndStatusMsg data) {
         Log.d(MainApplication.log,"onLoadFinished");
-        for(LatLng position : data) {
-            MarkerOptions markerOptions = new MarkerOptions().title("Вы тут были");
-            markerOptions.position(position);
+        List<Coor> coors = data.getCoors();
+        for(Coor coor : coors) {
+            MarkerOptions markerOptions = new MarkerOptions().title(coor.getDate().toString());
+            LatLng latLng = new LatLng(coor.getLatitude(), coor.getLongitude());
+            markerOptions.position(latLng);
             map.addMarker(markerOptions);
         }
     }
 
     @Override//вызывается при уничтожении (только в случае, когда хоть раз были получены данные.)
-    public void onLoaderReset(Loader<List<LatLng>> loader) {
+    public void onLoaderReset(Loader<DataAndStatusMsg> loader) {
         Log.d(MainApplication.log,"onLoaderReset");
     }
 }

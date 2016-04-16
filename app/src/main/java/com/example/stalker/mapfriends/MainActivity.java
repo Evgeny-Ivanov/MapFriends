@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity
                 MapCustomFragment mapCustomFragment = new MapCustomFragment();
 
                 Bundle arguments = new Bundle();
-                arguments.putInt(MapCustomFragment.BUNDLE_ID_USER,33);
+                arguments.putInt(MapCustomFragment.BUNDLE_ID_USER, 77);
                 mapCustomFragment.setArguments(arguments);
 
                 transaction.replace(R.id.fragmentContainer, mapCustomFragment);

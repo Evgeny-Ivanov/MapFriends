@@ -1,78 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/material_drawer_divider"
-    >
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="50dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginBottom="50dp"
-    android:layout_centerInParent="true"
-    android:orientation="vertical"
-    android:background="@android:drawable/dialog_holo_light_frame"
-    android:id="@+id/linearLayout">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Войти через:"
-        android:textSize="30dp"
-        android:textColor="#FFFFFF"
-        android:textStyle="italic"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="10dp"
-        android:id="@+id/textAuth"
-        android:background="@color/colorPrimary"
-        />
 
-    <!--
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Войти через:"
-        android:textSize="25dp"
-        android:textColor="@color/colorPrimary"
-        android:textStyle="italic"
-        android:layout_below="@id/textAuth"
-        android:paddingLeft="50dp"/>
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/textAuth"/>
 
-        -->
-
-    <com.andexert.library.RippleView
+    <com.skyfishjy.library.RippleBackground
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:layout_gravity="center">
+
+        android:id="@+id/rippleBackgroundAuth"
+        app:rb_color="@color/vk_color"
+        app:rb_radius="32dp"
+        app:rb_rippleAmount="4"
+        app:rb_duration="3000"
+        app:rb_scale="6">
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerInParent="true"
             android:src="@drawable/vk"
             android:id="@+id/authButton"/>
-    </com.andexert.library.RippleView>
+    </com.skyfishjy.library.RippleBackground>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Нам было лень делать свою регистрацию"
-        android:textSize="15dp"
-        android:textColor="#FFFFFF"
-        android:textStyle="italic"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="10dp"
-        android:id="@+id/textAuth2"
-        android:layout_alignParentBottom="true"
-        android:background="@color/vk_color"
-        />
+
+
 
 
 </RelativeLayout>
-
-
-    </RelativeLayout>

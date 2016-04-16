@@ -13,7 +13,8 @@ public class DBHelper extends SQLiteOpenHelper {//класс отвечающи�
     public static final String TABLE_NAME  = "Coordinates";
     public static final String COLUMN_LATITUDE = "latitude";//широта
     public static final String COLUMN_LONGITUDE = "longitude";//долгота
-    private static final int DB_VERSION = 2;
+    public static final String COLUMN_TIME = "time";
+    private static final int DB_VERSION = 4;
 
     public DBHelper(Context context){
       super(context,DB_NAME,null,DB_VERSION);
@@ -24,7 +25,8 @@ public class DBHelper extends SQLiteOpenHelper {//класс отвечающи�
         db.execSQL("CREATE table " + TABLE_NAME + " ("
                 + "_id integer primary key autoincrement,"
                 + COLUMN_LATITUDE + " REAL,"
-                + COLUMN_LONGITUDE + " REAL" + ");");
+                + COLUMN_LONGITUDE + " REAL, "
+                + COLUMN_TIME + " DATE DEFAULT (datetime('now','localtime'))" + ");");
         //_id - в android принято первичному ключу давать такое имя
     }
 
