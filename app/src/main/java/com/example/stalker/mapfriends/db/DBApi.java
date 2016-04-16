@@ -12,7 +12,6 @@ public class DBApi {
     private Context context;
     private DBHelper dbHelper;
     private SQLiteDatabase dbConnectionWritable;
-    private SQLiteDatabase dbConnectionReadable;
     public DBApi(Context context){
         this.context = context;
     }
@@ -20,7 +19,6 @@ public class DBApi {
     public void open(){
         dbHelper = new DBHelper(context);
         dbConnectionWritable = dbHelper.getWritableDatabase();
-        dbConnectionReadable = dbHelper.getReadableDatabase();
     }
 
     public Cursor getAllCoordinates(){

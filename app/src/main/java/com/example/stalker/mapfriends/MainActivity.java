@@ -3,8 +3,10 @@ package com.example.stalker.mapfriends;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +18,7 @@ import android.widget.ProgressBar;
 import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.example.stalker.mapfriends.fragments.MapCustomFragment;
+import com.example.stalker.mapfriends.network.CoorSendBroadcast;
 import com.google.android.gms.maps.MapFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -42,7 +45,8 @@ import com.vk.sdk.api.model.VKList;
 
 //http://java-help.ru/material-navigationdrawer/
 public class MainActivity extends AppCompatActivity
-        implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,AuthFragment.OnSuccessAuth {
+        implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,
+        AuthFragment.OnSuccessAuth, FriendsFragment.MapFriend {
 
     private Drawer drawer;
     private AccountHeader accountHeader;
@@ -75,13 +79,17 @@ public class MainActivity extends AppCompatActivity
             else
                 showFragment(Fragments.MAPS);
         }
+
+
     }
 
     @Override
     public void onSuccessAuth() {
         if(currentUser == null) {
             VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_200));
-            request.executeWithListener(requestGetUserProfileListener);
+            request.executeSyncWithListener(requestGetUserProfileListener);
+            createDrawer(currentUser);
+            registerCoorSendBroadcastReceiver(currentUser.id);
         } else {
             Log.d(MainApplication.log, "create Drawer current User");
             createDrawer(currentUser);
@@ -156,7 +164,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void showFragment(int position){
+    private void showFragment(int position, int idUser){
+        Log.d(MainApplication.log, idUser + " ");
         progressBar.setVisibility(ProgressBar.VISIBLE);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();//вся работа с фрагментами происходит в транзакции
 
@@ -171,7 +180,7 @@ public class MainActivity extends AppCompatActivity
                 MapCustomFragment mapCustomFragment = new MapCustomFragment();
 
                 Bundle arguments = new Bundle();
-                arguments.putInt(MapCustomFragment.BUNDLE_ID_USER, 77);
+                arguments.putInt(MapCustomFragment.BUNDLE_ID_USER, idUser);
                 mapCustomFragment.setArguments(arguments);
 
                 transaction.replace(R.id.fragmentContainer, mapCustomFragment);
@@ -203,6 +212,12 @@ public class MainActivity extends AppCompatActivity
         progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
+    private void showFragment(int position){
+        showFragment(position, currentUser.id);
+    }
+
+
+
     @Override//нажатие на пункт меню
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         showFragment((int) drawerItem.getIdentifier());
@@ -229,9 +244,16 @@ public class MainActivity extends AppCompatActivity
         outState.putParcelable("user", currentUser);
         if(drawer != null) {
             Long currentSelection =  drawer.getCurrentSelection();
-            outState.putInt("currentSelection",currentSelection.intValue());
+            outState.putInt("currentSelection", currentSelection.intValue());
         }
         Log.d(MainApplication.log, "save");
+    }
+
+    @Override
+    public void showMapFriends(VKApiUserFull friend) {
+        showFragment(Fragments.MAPS, friend.id);
+        String title = "Карта " + friend.last_name + " " + friend.first_name;
+        getSupportActionBar().setTitle(title);
     }
 
     private class DrawerItem extends PrimaryDrawerItem {//база для пунктов меню
@@ -241,6 +263,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void registerCoorSendBroadcastReceiver(int idUser){
+        CoorSendBroadcast coorSendBroadcast = new CoorSendBroadcast(idUser);
+        IntentFilter intentFilter = new IntentFilter("android.intent.action.TIME_TICK");
+        registerReceiver(coorSendBroadcast, intentFilter);
+    }
 
     private VKRequest.VKRequestListener requestGetUserProfileListener = new VKRequest.VKRequestListener() {
         @Override
@@ -248,7 +275,6 @@ public class MainActivity extends AppCompatActivity
             VKList<VKApiUserFull> usersArray = (VKList<VKApiUserFull>)response.parsedModel;
             VKApiUserFull userFull = usersArray.get(0);
             currentUser = userFull;
-            createDrawer(userFull);
         }
 
         @Override
@@ -256,7 +282,6 @@ public class MainActivity extends AppCompatActivity
             VKApiUserFull defaultUser = new VKApiUserFull();
             defaultUser.last_name = "Черный";
             defaultUser.first_name = "Плащ";
-            createDrawer(defaultUser);
         }
     };
 

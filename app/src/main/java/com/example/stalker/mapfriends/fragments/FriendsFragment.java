@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.R;
+import com.google.android.gms.maps.MapFragment;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -75,7 +76,8 @@ public class FriendsFragment extends ListFragment
 
     @Override//действие на нажатие на пункт
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        MapFriend mapFriend = (MapFriend)getActivity();
+        mapFriend.showMapFriends(friendsVK.get(position));
     }
 
     @Override//обработка состояний прокрутки (закончили,начали прокрутку и просто прокрутили)
@@ -148,5 +150,9 @@ public class FriendsFragment extends ListFragment
             getListView().setAdapter(new ItemFriendsAdapter(getActivity(), friendsVK));
         }
     };
+
+    public interface MapFriend{
+        void showMapFriends(VKApiUserFull friend);
+    }
 
 }

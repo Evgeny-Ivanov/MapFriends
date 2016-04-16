@@ -75,7 +75,7 @@ public class MapCustomFragment extends Fragment
         this.map = map;
         //restartLoader – создание нового лоадера в любом случае
         //getLoader – просто получение лоадера с указанным ID
-        Loader<DataAndStatusMsg> loader = getActivity().getLoaderManager().initLoader(loaderId, getArguments(), this);//создание лоадера если он не существовал
+        Loader<DataAndStatusMsg> loader = getActivity().getLoaderManager().restartLoader(loaderId, getArguments(), this);//создание лоадера если он не существовал
         loader.forceLoad();
     }
 
