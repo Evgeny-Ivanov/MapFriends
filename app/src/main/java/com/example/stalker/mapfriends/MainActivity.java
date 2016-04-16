@@ -74,10 +74,6 @@ public class MainActivity extends AppCompatActivity
             showFragment(Fragments.AUTH);
         } else {
             onSuccessAuth();
-            if (drawerSaveCurrentSelection != null)
-                showFragment(drawerSaveCurrentSelection);
-            else
-                showFragment(Fragments.MAPS);
         }
 
 
@@ -90,10 +86,16 @@ public class MainActivity extends AppCompatActivity
             request.executeSyncWithListener(requestGetUserProfileListener);
             createDrawer(currentUser);
             registerCoorSendBroadcastReceiver(currentUser.id);
+
         } else {
             Log.d(MainApplication.log, "create Drawer current User");
             createDrawer(currentUser);
         }
+
+        if (drawerSaveCurrentSelection != null)
+            showFragment(drawerSaveCurrentSelection);
+        else
+            showFragment(Fragments.MAPS);
     }
 
     private void createDrawer(VKApiUserFull user){
@@ -213,7 +215,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showFragment(int position){
-        showFragment(position, currentUser.id);
+
+        if(currentUser != null){
+            showFragment(position, currentUser.id);
+        }else {
+            showFragment(position, -1);
+        }
     }
 
 
