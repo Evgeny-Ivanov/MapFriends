@@ -6,9 +6,8 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:dividerHeight="7dp"
+        android:dividerHeight="2dp"
         android:divider="@null"
-        android:padding="5dp"
         android:id="@+id/android:list">
     </ListView>
 

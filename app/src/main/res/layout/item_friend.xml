@@ -8,8 +8,9 @@
         android:layout_height="match_parent"
         android:id="@+id/card_view"
         android:layout_gravity="center"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="10dp"
+        card_view:cardUseCompatPadding="true"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="4dp"
         style="@style/CardView">
 
 
@@ -24,8 +25,6 @@
                 android:id="@+id/imageFriend"
                 android:src="@drawable/img_default"
                 android:scaleType="fitCenter"
-                app:riv_border_width="1dip"
-                app:riv_border_color="#FFFFFF"
                 app:riv_mutate_background="true"
                 android:layout_width="100dp"
                 android:layout_height="100dp"/>

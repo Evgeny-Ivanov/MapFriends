@@ -6,14 +6,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
@@ -43,7 +42,7 @@ import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiUserFull;
 import com.vk.sdk.api.model.VKList;
 
-//http://java-help.ru/material-navigationdrawer/
+
 public class MainActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,
         AuthFragment.OnSuccessAuth, FriendsFragment.MapFriend {
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity
     private AccountHeader accountHeader;
     private Toolbar toolbar;
     private VKApiUserFull currentUser;
-    private ProgressBar progressBar;
     private Integer drawerSaveCurrentSelection;
 
     @Override
@@ -68,7 +66,6 @@ public class MainActivity extends AppCompatActivity
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
-        progressBar = (ProgressBar)findViewById(R.id.progressBar);
 
         if (!VKSdk.isLoggedIn()) {
             showFragment(Fragments.AUTH);
@@ -167,8 +164,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showFragment(int position, int idUser){
-        Log.d(MainApplication.log, idUser + " ");
-        progressBar.setVisibility(ProgressBar.VISIBLE);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();//вся работа с фрагментами происходит в транзакции
 
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
@@ -211,11 +206,9 @@ public class MainActivity extends AppCompatActivity
                 transaction.commit();
                 break;
         }
-        progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
     private void showFragment(int position){
-
         if(currentUser != null){
             showFragment(position, currentUser.id);
         }else {
@@ -270,7 +263,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void registerCoorSendBroadcastReceiver(int idUser){
+    private void registerCoorSendBroadcastReceiver(int idUser){//регистрируем сервис отправки координат на сервер
         CoorSendBroadcast coorSendBroadcast = new CoorSendBroadcast(idUser);
         IntentFilter intentFilter = new IntentFilter("android.intent.action.TIME_TICK");
         registerReceiver(coorSendBroadcast, intentFilter);
@@ -286,9 +279,8 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onError(VKError error) {
-            VKApiUserFull defaultUser = new VKApiUserFull();
-            defaultUser.last_name = "Черный";
-            defaultUser.first_name = "Плащ";
+            String message = "Проблемы с сетью";
+            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT);
         }
     };
 

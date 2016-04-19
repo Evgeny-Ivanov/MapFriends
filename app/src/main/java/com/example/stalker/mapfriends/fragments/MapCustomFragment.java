@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,8 +66,13 @@ public class MapCustomFragment extends Fragment
         Log.d(MainApplication.log, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
 
-        FragmentManager fragmentManager = getFragmentManager();
-        MapFragment mapFragment = (MapFragment)fragmentManager.findFragmentById(R.id.map);
+        MapFragment mapFragment;
+
+        if (Build.VERSION.SDK_INT < 21) {
+            mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
+        } else {
+            mapFragment = (MapFragment)getChildFragmentManager().findFragmentById(R.id.map);
+        }
         mapFragment.getMapAsync(this);
     }
 
