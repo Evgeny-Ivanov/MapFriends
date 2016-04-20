@@ -18,7 +18,5 @@ public class MainApplication extends Application {
     public void onCreate(){
         super.onCreate();
         VKSdk.initialize(this);//VKsdk требует инициализацию тут, иначе exception
-        Intent startServiceIntent = new Intent(this, CoordinatesSaveService.class);
-        this.startService(startServiceIntent);
     }
 }

@@ -1,11 +1,15 @@
 package com.example.stalker.mapfriends;
 
 
+import android.Manifest;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -58,6 +62,25 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            Log.d(MainApplication.log, "ACCESS_FINE_LOCATION isnt yet");
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else {
+            Log.d(MainApplication.log, "ACCESS_FINE_LOCATION is already");
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            Log.d(MainApplication.log, "WRITE_EXTERNAL_STORAGE isnt yet");
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
+            Log.d(MainApplication.log, "WRITE_EXTERNAL_STORAGE is already");
+        }
 
         if(savedInstanceState != null){
             currentUser = savedInstanceState.getParcelable("user");
@@ -72,8 +95,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             onSuccessAuth();
         }
-
-
     }
 
     @Override

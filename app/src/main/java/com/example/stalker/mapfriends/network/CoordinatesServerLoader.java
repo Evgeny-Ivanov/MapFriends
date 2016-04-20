@@ -9,7 +9,8 @@ import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.fragments.MapCustomFragment;
 import com.example.stalker.mapfriends.message.DataAndStatusMsg;
 import com.example.stalker.mapfriends.message.RequestDataMsg;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class CoordinatesServerLoader extends AsyncTaskLoader<DataAndStatusMsg> {
     @Override
     public DataAndStatusMsg loadInBackground(){
         Log.d(MainApplication.log, "loadInBackground");
+
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())

@@ -45,7 +45,7 @@ public class Coor {
     }
 
     public <T> T getDataBaseDate() {
-        return (T) new Long( getDate().getTime() );
+        return (T) new Long( date.getTime() );
     }
 
     public <T> void setDataBaseDate(T date) {

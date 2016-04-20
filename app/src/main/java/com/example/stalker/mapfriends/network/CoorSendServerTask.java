@@ -3,12 +3,16 @@ package com.example.stalker.mapfriends.network;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.db.DBApi;
 import com.example.stalker.mapfriends.db.DBHelper;
 import com.example.stalker.mapfriends.message.DataMsg;
 import com.example.stalker.mapfriends.message.StatusMsg;
 import com.example.stalker.mapfriends.model.Coor;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -50,10 +54,15 @@ public class CoorSendServerTask extends AsyncTask<Void, Void, Void> {
             coor.setLongitude(cursor.getDouble(longitudeColIndex));
             coor.setDataBaseDate(cursor.getLong(timeColIndex));
             coors.add(coor);
+            Log.d(MainApplication.log, coor.toString());
         }
 
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                .create();
+
         Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .baseUrl("http://195.19.44.134:8081/")
                 .build();
 
@@ -62,7 +71,9 @@ public class CoorSendServerTask extends AsyncTask<Void, Void, Void> {
         Call<StatusMsg> callSend =  apiServerSendCoor.send(dataMsg);
         try {
             Response<StatusMsg> responseSend = callSend.execute();
+            Log.d(MainApplication.log, new Integer(responseSend.body().getStatus()).toString());
             if(responseSend.isSuccessful()){
+                Log.d(MainApplication.log, "success send");
                 dbApi.deleteAll();
             }
         }catch (IOException e){
