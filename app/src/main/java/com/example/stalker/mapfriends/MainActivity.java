@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.stalker.mapfriends.fragments.AuthFragment;
+import com.example.stalker.mapfriends.fragments.ContactsFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.example.stalker.mapfriends.fragments.MapCustomFragment;
 import com.example.stalker.mapfriends.network.CoorSendBroadcast;
@@ -219,6 +220,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case Fragments.CONTACTS:
                 getSupportActionBar().setTitle(R.string.titleContact);
+                ContactsFragment contactsFragment = new ContactsFragment();
+                transaction.replace(R.id.fragmentContainer, contactsFragment);
+                transaction.commit();
                 break;
             case Fragments.AUTH:
                 getSupportActionBar().setTitle(R.string.titleAuth);
