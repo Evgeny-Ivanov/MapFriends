@@ -3,16 +3,21 @@
 android:layout_width="match_parent"
 android:layout_height="match_parent">
 
-    <Button
+
+    <com.rey.material.widget.Button
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:rd_enable="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/developer2"
         android:id="@+id/btnIlya"
         android:layout_below="@+id/textView4"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"/>
 
-    <Button
+    <com.rey.material.widget.Button
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:rd_enable="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/developer1"

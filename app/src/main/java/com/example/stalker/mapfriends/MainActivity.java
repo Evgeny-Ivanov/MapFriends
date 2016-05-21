@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -102,42 +103,18 @@ public class MainActivity extends AppCompatActivity
     public void onSuccessAuth() {
         if(currentUser == null) {
             VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_200));
-            request.executeSyncWithListener(requestGetUserProfileListener);
-            createDrawer(currentUser);
-            registerCoorSendBroadcastReceiver(currentUser.id);
-
+            request.executeWithListener(requestGetUserProfileListener);
         } else {
             Log.d(MainApplication.log, "create Drawer current User");
             createDrawer(currentUser);
+            if (drawerSaveCurrentSelection != null)
+                showFragment(drawerSaveCurrentSelection);
+            else
+                showFragment(Fragments.MAPS);
         }
-
-        if (drawerSaveCurrentSelection != null)
-            showFragment(drawerSaveCurrentSelection);
-        else
-            showFragment(Fragments.MAPS);
     }
 
     private void createDrawer(VKApiUserFull user){
-        DrawerImageLoader.init(new AbstractDrawerImageLoader() {//определяем как библиотека будет скачивать изображения
-            @Override
-            public void set(ImageView imageView, Uri uri, Drawable placeholder) {
-                super.set(imageView, uri, placeholder);
-                Picasso
-                        .with(imageView.getContext())
-                        .load(uri).placeholder(placeholder)
-                        .error(R.drawable.img_default)
-                        .into(imageView);
-            }
-
-            @Override
-            public void cancel(ImageView imageView) {
-                super.cancel(imageView);
-                Picasso
-                        .with(imageView.getContext())
-                        .cancelRequest(imageView);
-            }
-        });
-
         String fullName = user.last_name + " " + user.first_name;
         IProfile profile = new ProfileDrawerItem()
                 .withName(fullName)
@@ -148,6 +125,7 @@ public class MainActivity extends AppCompatActivity
                 .withHeaderBackground(R.drawable.drawer_header)
                 .addProfiles(profile)
                 .withSelectionListEnabled(false)//выключить список профилей
+                .withSelectionListEnabledForSingleProfile(false)
                 .withOnAccountHeaderListener(this)
                 .build();
 
@@ -158,26 +136,30 @@ public class MainActivity extends AppCompatActivity
                 .withActionBarDrawerToggleAnimated(true)//анимация стрелки
                 .withAccountHeader(accountHeader)
                 .addDrawerItems(
-                        new DrawerItem()
+                        new PrimaryDrawerItem()
                                 .withName(R.string.drawer_item_my_map)
                                 .withIcon(FontAwesome.Icon.faw_map)
-                                .withIdentifier(Fragments.MAPS),
-                        new DrawerItem()
+                                .withIdentifier(Fragments.MAPS)
+                                .withOnDrawerItemClickListener(MainActivity.this),
+                        new PrimaryDrawerItem()
                                 .withName(R.string.drawer_item_friends)
                                 .withIcon(FontAwesome.Icon.faw_vk)
-                                .withIdentifier(Fragments.FRIENDS),
+                                .withIdentifier(Fragments.FRIENDS)
+                                .withOnDrawerItemClickListener(MainActivity.this),
 
                         new SectionDrawerItem()
                                 .withName(R.string.drawer_item_extra),
 
-                        new DrawerItem()
+                        new PrimaryDrawerItem()
                                 .withName(R.string.drawer_item_settings)
                                 .withIcon(FontAwesome.Icon.faw_anchor)
-                                .withIdentifier(Fragments.SETTINGS),
-                        new DrawerItem()
+                                .withIdentifier(Fragments.SETTINGS)
+                                .withOnDrawerItemClickListener(MainActivity.this),
+                        new PrimaryDrawerItem()
                                 .withName(R.string.drawer_item_contact)
                                 .withIcon(FontAwesome.Icon.faw_github)
                                 .withIdentifier(Fragments.CONTACTS)
+                                .withOnDrawerItemClickListener(MainActivity.this)
                 )
                 .build();
         if(drawerSaveCurrentSelection != null){
@@ -187,14 +169,13 @@ public class MainActivity extends AppCompatActivity
 
     private void showFragment(int position, int idUser){
         FragmentTransaction transaction = getFragmentManager().beginTransaction();//вся работа с фрагментами происходит в транзакции
-
-        MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
-        if(mapFragment != null)//если не удалять при повторном создании карты будет конфликт
-            transaction.remove(mapFragment);
-
         transaction.setCustomAnimations(R.animator.fragment_show, R.animator.fragment_hide);
         switch(position){
             case Fragments.MAPS:
+                MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
+                if(mapFragment != null)//если не удалять при повторном создании карты будет конфликт
+                    transaction.remove(mapFragment);
+
                 getSupportActionBar().setTitle(R.string.titleMap);
                 MapCustomFragment mapCustomFragment = new MapCustomFragment();
 
@@ -242,7 +223,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     @Override//нажатие на пункт меню
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         showFragment((int) drawerItem.getIdentifier());
@@ -281,13 +261,6 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setTitle(title);
     }
 
-    private class DrawerItem extends PrimaryDrawerItem {//база для пунктов меню
-        public DrawerItem(){
-            super();
-            withOnDrawerItemClickListener(MainActivity.this);
-        }
-    }
-
     private void registerCoorSendBroadcastReceiver(int idUser){//регистрируем сервис отправки координат на сервер
         CoorSendBroadcast coorSendBroadcast = new CoorSendBroadcast(idUser);
         IntentFilter intentFilter = new IntentFilter("android.intent.action.TIME_TICK");
@@ -298,15 +271,22 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onComplete(VKResponse response) {//успех
             VKList<VKApiUserFull> usersArray = (VKList<VKApiUserFull>)response.parsedModel;
-            VKApiUserFull userFull = usersArray.get(0);
-            currentUser = userFull;
+            currentUser = usersArray.get(0);
+            createDrawer(currentUser);
+            registerCoorSendBroadcastReceiver(currentUser.id);
+            showFragment(Fragments.MAPS);
         }
 
         @Override
         public void onError(VKError error) {
             String message = "Проблемы с сетью";
-            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT);
+            Log.d(MainApplication.log, message);
+            Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            MainActivity.this.onBackPressed();
         }
+
     };
 
     private class Fragments  {

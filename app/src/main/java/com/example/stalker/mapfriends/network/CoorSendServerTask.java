@@ -63,12 +63,12 @@ public class CoorSendServerTask extends AsyncTask<Void, Void, Void> {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .baseUrl("http://195.19.44.134:8081/")
+                .baseUrl(APIServerCoor.SERVER_URL)
                 .build();
 
         DataMsg dataMsg = new DataMsg(idUser, coors);
-        APIServerSendCoor apiServerSendCoor = retrofit.create(APIServerSendCoor.class);
-        Call<StatusMsg> callSend =  apiServerSendCoor.send(dataMsg);
+        APIServerCoor apiServerCoor = retrofit.create(APIServerCoor.class);
+        Call<StatusMsg> callSend =  apiServerCoor.send(dataMsg);
         try {
             Response<StatusMsg> responseSend = callSend.execute();
             Log.d(MainApplication.log, new Integer(responseSend.body().getStatus()).toString());

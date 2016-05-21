@@ -18,6 +18,7 @@ import com.example.stalker.mapfriends.R;
 import com.example.stalker.mapfriends.message.DataAndStatusMsg;
 import com.example.stalker.mapfriends.model.Coor;
 import com.example.stalker.mapfriends.network.CoordinatesServerLoader;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -79,6 +80,8 @@ public class MapCustomFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {//выполниться когда карта будет готова к использованию
         this.map = map;
+        LatLng latLngMoscow = new LatLng(55.7522200, 37.6155600);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLngMoscow));
         //restartLoader – создание нового лоадера в любом случае
         //getLoader – просто получение лоадера с указанным ID
         Loader<DataAndStatusMsg> loader = getActivity().getLoaderManager().restartLoader(loaderId, getArguments(), this);//создание лоадера если он не существовал
@@ -101,6 +104,12 @@ public class MapCustomFragment extends Fragment
             markerOptions.position(latLng);
             map.addMarker(markerOptions);
         }
+
+        Coor zoomCoor = coors.get(coors.size() - 1);
+        float zoom = 10;
+        LatLng latLng = new LatLng(zoomCoor.getLatitude(), zoomCoor.getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
     }
 
     @Override//вызывается при уничтожении (только в случае, когда хоть раз были получены данные.)

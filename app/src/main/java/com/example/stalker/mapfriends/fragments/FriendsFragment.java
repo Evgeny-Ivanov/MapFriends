@@ -31,7 +31,7 @@ import com.vk.sdk.api.model.VKList;
  * Created by stalker on 09.03.16.
  */
 public class FriendsFragment extends ListFragment
-    implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener{
+    implements AdapterView.OnItemClickListener{
 
     VKList<VKApiUserFull> friendsVK;
 
@@ -58,7 +58,6 @@ public class FriendsFragment extends ListFragment
         //getView - ссылка на фрагмент
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
         getListView().setOnItemClickListener(this);
-        getListView().setOnScrollListener(this);
 
         if(savedInstanceState != null) {
             Log.d(MainApplication.log,"savedInstanceState != null");
@@ -80,13 +79,9 @@ public class FriendsFragment extends ListFragment
         mapFriend.showMapFriends(friendsVK.get(position));
     }
 
-    @Override//обработка состояний прокрутки (закончили,начали прокрутку и просто прокрутили)
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-    }
-
-    @Override//обработка прокрутки (сколько пунктов видно на экране...)
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    static class ViewHolder {
+        TextView txtItem;
+        ImageView imageItem;
 
     }
 
@@ -120,22 +115,28 @@ public class FriendsFragment extends ListFragment
 
         @Override// пункт списка
         public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder;
+
             if(convertView == null) {//android может ипользовать элементы списка
                                      //созданные ранее но невидные сейчас на экране
                                      //(что бы не собирать view из xml лишний раз)
                 convertView = inflater.inflate(R.layout.item_friend, parent,false);
+                viewHolder = new ViewHolder();
+                viewHolder.txtItem = (TextView)convertView.findViewById(R.id.nameFriend);
+                viewHolder.imageItem = (ImageView) convertView.findViewById(R.id.imageFriend);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder)convertView.getTag();
             }
 
             VKApiUserFull user = (VKApiUserFull)getItem(position);
-
-            TextView name = (TextView)convertView.findViewById(R.id.nameFriend);
             String fullName = user.last_name + " " + user.first_name;
-            name.setText(fullName);
+            viewHolder.txtItem.setText(fullName);
 
             Picasso.with(context)
                     .load(user.photo_100)
                     .error(R.drawable.img_default)
-                    .into((ImageView) convertView.findViewById(R.id.imageFriend));
+                    .into(viewHolder.imageItem);
 
             return convertView;
         }
