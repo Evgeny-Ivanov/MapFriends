@@ -15,17 +15,12 @@
 
 
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp">
 
-            <com.makeramen.roundedimageview.RoundedImageView
-                xmlns:app="http://schemas.android.com/apk/res-auto"
+            <ImageView
                 android:id="@+id/imageFriend"
-                android:src="@drawable/img_default"
-                android:scaleType="fitCenter"
-                app:riv_mutate_background="true"
                 android:layout_width="100dp"
                 android:layout_height="100dp"/>
 
