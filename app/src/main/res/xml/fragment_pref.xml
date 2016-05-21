@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="chb1"
+        android:summary="@string/level_acc"
+        android:title="@string/level_acc_title">
+    </CheckBoxPreference>
+
+    <Preference android:title="@string/exit_vk"
+        android:key="exit_vk_key"/>
+
+</PreferenceScreen>

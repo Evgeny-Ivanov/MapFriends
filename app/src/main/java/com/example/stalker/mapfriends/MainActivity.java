@@ -23,6 +23,7 @@ import com.example.stalker.mapfriends.fragments.AuthFragment;
 import com.example.stalker.mapfriends.fragments.ContactsFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.example.stalker.mapfriends.fragments.MapCustomFragment;
+import com.example.stalker.mapfriends.fragments.PrefFragment;
 import com.example.stalker.mapfriends.network.CoorSendBroadcast;
 import com.google.android.gms.maps.MapFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
@@ -194,10 +195,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case Fragments.SETTINGS:
                 getSupportActionBar().setTitle(R.string.titleSettings);
-                VKSdk.logout();
-                Intent intent = new Intent(this,SplashActivity.class);
-                startActivity(intent);
-                finish();
+                PrefFragment prefFragment = new PrefFragment();
+                transaction.replace(R.id.fragmentContainer, prefFragment);
+                transaction.commit();
                 break;
             case Fragments.CONTACTS:
                 getSupportActionBar().setTitle(R.string.titleContact);

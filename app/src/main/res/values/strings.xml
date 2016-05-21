@@ -6,4 +6,11 @@
     <string name="name_team">Женя и Илья</string>
     <string name="developer1">Женя</string>
     <string name="developer2">Илья</string>
+
+    <string name="exit_vk">выход из вк</string>
+    <string name="level_acc">если уровень заряда аккумулятора менее 30%</string>
+    <string name="level_acc_title">отключить автоослеживание</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
