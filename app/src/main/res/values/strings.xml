@@ -2,4 +2,8 @@
     <string name="app_name">MapFriends</string>
     <string name="emptyListView">У вас нет друзей</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="name_team">Женя и Илья</string>
+    <string name="developer1">Женя</string>
+    <string name="developer2">Илья</string>
 </resources>
