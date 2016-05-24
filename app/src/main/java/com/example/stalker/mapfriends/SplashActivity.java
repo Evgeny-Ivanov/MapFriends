@@ -1,28 +1,22 @@
 package com.example.stalker.mapfriends;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
-import com.example.stalker.mapfriends.coordinatesSave.CoordinatesSaveService;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
-import com.vk.sdk.util.VKUtil;
 
 //тут проверяем авторизацию
 //если не авторизован - показываем фрагмент авторизации
 //иначе - запускаем главный экран
 public class SplashActivity extends AppCompatActivity {
+    private static final String BROADCAST_ACTION_START_COOR_COLLECTION = "start.coordinate.collection";
 
     private int timeDelayed = 2000;
 
@@ -31,8 +25,6 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Intent startServiceIntent = new Intent(this, CoordinatesSaveService.class);
-        this.startService(startServiceIntent);
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -44,6 +36,8 @@ public class SplashActivity extends AppCompatActivity {
             }
         }, timeDelayed);
 
+        Intent intent = new Intent(BROADCAST_ACTION_START_COOR_COLLECTION);
+        sendBroadcast(intent);
         DrawerImageLoader.init(abstractDrawerImageLoader);//определяем как библиотека будет скачивать изображения
     }
 

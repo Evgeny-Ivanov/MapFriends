@@ -1,10 +1,8 @@
 package com.example.stalker.mapfriends;
 
 import android.app.Application;
-import android.content.Intent;
 
 
-import com.example.stalker.mapfriends.coordinatesSave.CoordinatesSaveService;
 import com.vk.sdk.VKSdk;
 
 /**

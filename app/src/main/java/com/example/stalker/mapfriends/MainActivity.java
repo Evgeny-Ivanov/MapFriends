@@ -3,20 +3,17 @@ package com.example.stalker.mapfriends;
 
 import android.Manifest;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.stalker.mapfriends.fragments.AuthFragment;
@@ -24,8 +21,8 @@ import com.example.stalker.mapfriends.fragments.ContactsFragment;
 import com.example.stalker.mapfriends.fragments.FriendsFragment;
 import com.example.stalker.mapfriends.fragments.MapCustomFragment;
 import com.example.stalker.mapfriends.fragments.PrefFragment;
+import com.example.stalker.mapfriends.interfaces.ProgressbarVisibility;
 import com.example.stalker.mapfriends.network.CoorSendBroadcast;
-import com.google.android.gms.maps.MapFragment;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -36,9 +33,6 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
-import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
-import com.mikepenz.materialdrawer.util.DrawerImageLoader;
-import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -49,16 +43,21 @@ import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiUserFull;
 import com.vk.sdk.api.model.VKList;
 
+import java.util.Stack;
+
 
 public class MainActivity extends AppCompatActivity
         implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener,
-        AuthFragment.OnSuccessAuth, FriendsFragment.MapFriend {
+        AuthFragment.OnSuccessAuth, FriendsFragment.MapFriend,
+        ProgressbarVisibility{
 
     private Drawer drawer;
     private AccountHeader accountHeader;
     private Toolbar toolbar;
     private VKApiUserFull currentUser;
     private Integer drawerSaveCurrentSelection;
+    private Stack<Integer> fragmentStack = new Stack<>();
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,13 +84,17 @@ public class MainActivity extends AppCompatActivity
             Log.d(MainApplication.log, "WRITE_EXTERNAL_STORAGE is already");
         }
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
+        progressBar = (ProgressBar)findViewById(R.id.progressBar);
+
         if(savedInstanceState != null){
             currentUser = savedInstanceState.getParcelable("user");
             drawerSaveCurrentSelection = savedInstanceState.getInt("currentSelection");
+            fragmentStack = (Stack<Integer>)savedInstanceState.getSerializable("fragmentStack");
+            CharSequence title = savedInstanceState.getCharSequence("title");
+            getSupportActionBar().setTitle(title);
         }
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);//устанавливаем toolbar в качестве ActionBar
 
         if (!VKSdk.isLoggedIn()) {
             showFragment(Fragments.AUTH);
@@ -108,9 +111,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             Log.d(MainApplication.log, "create Drawer current User");
             createDrawer(currentUser);
-            if (drawerSaveCurrentSelection != null)
-                showFragment(drawerSaveCurrentSelection);
-            else
+            if (drawerSaveCurrentSelection == null)
                 showFragment(Fragments.MAPS);
         }
     }
@@ -169,49 +170,71 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showFragment(int position, int idUser){
+        progressBar.setVisibility(View.VISIBLE);
+        fragmentStack.add(position);
+        setTitleToolbar(position);
+
         FragmentTransaction transaction = getFragmentManager().beginTransaction();//вся работа с фрагментами происходит в транзакции
-        transaction.setCustomAnimations(R.animator.fragment_show, R.animator.fragment_hide);
+        //transaction.setCustomAnimations(R.animator.fragment_show, R.animator.fragment_hide);
         switch(position){
             case Fragments.MAPS:
-                MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
-                if(mapFragment != null)//если не удалять при повторном создании карты будет конфликт
-                    transaction.remove(mapFragment);
-
-                getSupportActionBar().setTitle(R.string.titleMap);
                 MapCustomFragment mapCustomFragment = new MapCustomFragment();
-
                 Bundle arguments = new Bundle();
                 arguments.putInt(MapCustomFragment.BUNDLE_ID_USER, idUser);
                 mapCustomFragment.setArguments(arguments);
 
                 transaction.replace(R.id.fragmentContainer, mapCustomFragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 break;
             case Fragments.FRIENDS:
-                getSupportActionBar().setTitle(R.string.titleFriends);
                 FriendsFragment friendsFragment = new FriendsFragment();
                 transaction.replace(R.id.fragmentContainer, friendsFragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 break;
             case Fragments.SETTINGS:
-                getSupportActionBar().setTitle(R.string.titleSettings);
                 PrefFragment prefFragment = new PrefFragment();
                 transaction.replace(R.id.fragmentContainer, prefFragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 break;
             case Fragments.CONTACTS:
-                getSupportActionBar().setTitle(R.string.titleContact);
                 ContactsFragment contactsFragment = new ContactsFragment();
                 transaction.replace(R.id.fragmentContainer, contactsFragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 break;
             case Fragments.AUTH:
-                getSupportActionBar().setTitle(R.string.titleAuth);
                 AuthFragment authFragment = new AuthFragment();
                 transaction.replace(R.id.fragmentContainer, authFragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 break;
         }
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void setTitleToolbar(Integer position){
+        int resId = R.string.titleMap;
+        switch(position){
+            case Fragments.MAPS:
+                resId = R.string.titleMap;
+                break;
+            case Fragments.FRIENDS:
+                resId = R.string.titleFriends;
+                break;
+            case Fragments.SETTINGS:
+                resId = R.string.titleSettings;
+                break;
+            case Fragments.CONTACTS:
+                resId = R.string.titleContact;
+                break;
+            case Fragments.AUTH:
+                resId = R.string.titleAuth;
+                break;
+        }
+        getSupportActionBar().setTitle(resId);
     }
 
     private void showFragment(int position){
@@ -238,18 +261,30 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed(){
         if(drawer != null && drawer.isDrawerOpen()){
             drawer.closeDrawer();
+            return;
+        }
+        if (getFragmentManager().getBackStackEntryCount() > 1 ){
+            getFragmentManager().popBackStack();
+            fragmentStack.pop();
+            Integer currentFragment = fragmentStack.peek();
+            setTitleToolbar(currentFragment);
+            drawer.setSelection(currentFragment);
         } else {
             super.onBackPressed();
         }
     }
 
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {//сохраняем данные при повороте экрана
         super.onSaveInstanceState(outState);
         outState.putParcelable("user", currentUser);
-        if(drawer != null) {
+        if (drawer != null) {
             Long currentSelection =  drawer.getCurrentSelection();
             outState.putInt("currentSelection", currentSelection.intValue());
+            outState.putSerializable("fragmentStack", fragmentStack);
+            CharSequence title = getSupportActionBar().getTitle();
+            outState.putCharSequence("title",title);
         }
         Log.d(MainApplication.log, "save");
     }
@@ -288,6 +323,16 @@ public class MainActivity extends AppCompatActivity
         }
 
     };
+
+    @Override
+    public void setVisibleProgressBar(){
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setInvisibleProgressBar(){
+        progressBar.setVisibility(View.INVISIBLE);
+    }
 
     private class Fragments  {
         public static final int MAPS = 0;

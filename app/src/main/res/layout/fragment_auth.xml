@@ -1,37 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/textAuth"/>
-
-    <com.skyfishjy.library.RippleBackground
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-
-        android:id="@+id/rippleBackgroundAuth"
-        app:rb_color="@color/vk_color"
-        app:rb_radius="32dp"
-        app:rb_rippleAmount="4"
-        app:rb_duration="3000"
-        app:rb_scale="6">
-        <ImageView
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/vk"
-            android:id="@+id/authButton"/>
-    </com.skyfishjy.library.RippleBackground>
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:textSize="30dp"
+        android:gravity="center"
+        android:text="Привет друг"/>
 
 
+    <TextView
+        android:layout_weight="1"
+        android:textSize="20dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textAuth"/>
+
+    <RelativeLayout
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        android:layout_margin="20dp"
+        android:layout_marginBottom="0dp">
+
+        <TextView
+            android:id="@+id/authButtonsHeaderText"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:textSize="20dp"
+            android:text="Войти с помощью:" />
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            xmlns:fancy="http://schemas.android.com/apk/res-auto"
+            style="@style/ButtonLoginStyle"
+            android:layout_below="@+id/authButtonsHeaderText"
+            android:id="@+id/authButton"
+            fancy:fb_defaultColor="#51759b"
+            fancy:fb_focusColor="#4b6d94"
+            fancy:fb_iconResource="@drawable/vk"
+            fancy:fb_iconPosition="left"
+            fancy:fb_radius="5dp"
+            fancy:fb_text="Вконтакте"
+            fancy:fb_textColor="#FFFFFF" />
 
 
+        <mehdi.sakout.fancybuttons.FancyButton
+            xmlns:fancy="http://schemas.android.com/apk/res-auto"
+            style="@style/ButtonLoginStyle"
+            android:layout_below="@+id/authButton"
+            android:id="@+id/authButtonOk"
+            fancy:fb_defaultColor="#ee8208"
+            fancy:fb_focusColor="#ee7808"
+            fancy:fb_iconResource="@drawable/ok"
+            fancy:fb_iconPosition="left"
+            fancy:fb_radius="5dp"
+            fancy:fb_text="Одноклассники"
+            fancy:fb_textColor="#FFFFFF" />
 
-</RelativeLayout>
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            xmlns:fancy="http://schemas.android.com/apk/res-auto"
+            style="@style/ButtonLoginStyle"
+            android:layout_below="@+id/authButtonOk"
+            android:id="@+id/authButtonFacebook"
+            fancy:fb_defaultColor="#3b5998"
+            fancy:fb_focusColor="#5474b8"
+            fancy:fb_iconResource="@drawable/facebook"
+            fancy:fb_text="Facebook"
+            fancy:fb_iconPosition="left"
+            fancy:fb_radius="5dp"
+            fancy:fb_textColor="#FFFFFF" />
+
+    </RelativeLayout>
+
+</LinearLayout>

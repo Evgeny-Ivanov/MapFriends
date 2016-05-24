@@ -1,13 +1,14 @@
 package com.example.stalker.mapfriends.network;
 
-import android.content.Context;
+import android.app.IntentService;
+import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.db.DBApi;
 import com.example.stalker.mapfriends.db.DBHelper;
+import com.example.stalker.mapfriends.fragments.MapCustomFragment;
 import com.example.stalker.mapfriends.message.DataMsg;
 import com.example.stalker.mapfriends.message.StatusMsg;
 import com.example.stalker.mapfriends.model.Coor;
@@ -23,21 +24,16 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by stalker on 16.04.16.
- */
-public class CoorSendServerTask extends AsyncTask<Void, Void, Void> {
-    private Context context;
-    private int idUser;
 
-    public CoorSendServerTask(Context context, int idUser){
-        this.context = context;
-        this.idUser = idUser;
+public class CoorSendIntentService extends IntentService {
+    public CoorSendIntentService(){
+        super("CoorSendIntentService");
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        DBApi dbApi = new DBApi(context);
+    protected void onHandleIntent(Intent intent) {
+        int idUser = intent.getIntExtra(MapCustomFragment.BUNDLE_ID_USER,-1);
+        DBApi dbApi = new DBApi(this);
         dbApi.open();
         Cursor cursor = dbApi.getAllCoordinates();
 
@@ -80,6 +76,5 @@ public class CoorSendServerTask extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         }
         dbApi.close();
-        return null;
     }
 }

@@ -4,19 +4,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.stalker.mapfriends.MainApplication;
-import com.example.stalker.mapfriends.coordinatesSave.CoordinatesSaveService;
+import com.example.stalker.mapfriends.db.DBApi;
 
 public class CoordinatesSaveStartServiceReceiver extends BroadcastReceiver {//с помощью этого запускаем сервис сбора координат при включении телефона
-    public CoordinatesSaveStartServiceReceiver() {
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(MainApplication.log, "Start CoordinatesService");
-        Intent startServiceIntent = new Intent(context,CoordinatesSaveService.class);
-        context.startService(startServiceIntent);
+        DBApi dbApi = new DBApi(context);
+        dbApi.open();
+
+        new TaskSaveCoordinates(context, dbApi);
     }
 }

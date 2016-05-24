@@ -13,13 +13,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.stalker.mapfriends.MainApplication;
 import com.example.stalker.mapfriends.R;
+import com.example.stalker.mapfriends.interfaces.ProgressbarVisibility;
 import com.google.android.gms.maps.MapFragment;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
@@ -59,6 +62,7 @@ public class FriendsFragment extends ListFragment
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);//нельзя выбирать несколько пунктов
         getListView().setOnItemClickListener(this);
 
+
         if(savedInstanceState != null) {
             Log.d(MainApplication.log,"savedInstanceState != null");
             friendsVK = savedInstanceState.getParcelable("friends");
@@ -67,7 +71,12 @@ public class FriendsFragment extends ListFragment
         }
 
         if(friendsVK == null) {
-            VKRequest requestGetFriends = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, VKApiUserFull.FIELD_PHOTO_100));
+            if(getActivity() instanceof ProgressbarVisibility)
+                ((ProgressbarVisibility)getActivity()).setVisibleProgressBar();
+            VKRequest requestGetFriends = VKApi.friends()
+                    .get(VKParameters.from(VKApiConst.FIELDS,
+                            VKApiUserFull.FIELD_PHOTO_100,
+                            VKApiConst.NAME_CASE, "gen"));
             requestGetFriends.executeWithListener(requestGetFriendsListener);
         }
 
@@ -130,7 +139,7 @@ public class FriendsFragment extends ListFragment
             }
 
             VKApiUserFull user = (VKApiUserFull)getItem(position);
-            String fullName = user.last_name + " " + user.first_name;
+            String fullName = "Карта " + user.last_name + " " + user.first_name;
             viewHolder.txtItem.setText(fullName);
 
             Picasso.with(context)
@@ -148,7 +157,21 @@ public class FriendsFragment extends ListFragment
         public void onComplete(VKResponse response) {
             super.onComplete(response);
             friendsVK = (VKList<VKApiUserFull>)response.parsedModel;
-            getListView().setAdapter(new ItemFriendsAdapter(getActivity(), friendsVK));
+            if(isAdded()) {
+                getListView().setAdapter(new ItemFriendsAdapter(getActivity(), friendsVK));
+            }
+            if(getActivity() instanceof ProgressbarVisibility)
+                ((ProgressbarVisibility)getActivity()).setInvisibleProgressBar();
+        }
+
+        @Override
+        public void onError(VKError error) {
+            super.onError(error);
+            String message = "Что то не так с сетью";
+            Toast.makeText(getActivity(),message,Toast.LENGTH_SHORT).show();
+
+            if(getActivity() instanceof ProgressbarVisibility)
+                ((ProgressbarVisibility)getActivity()).setInvisibleProgressBar();
         }
     };
 

@@ -21,8 +21,10 @@ public class CoorSendBroadcast extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(MainApplication.log, "send coor");
-        CoorSendServerTask task = new CoorSendServerTask(context, idUser);
-        task.execute();
+
+        Intent intentStartCoorSendService = new Intent(context, CoorSendIntentService.class);
+        intentStartCoorSendService.putExtra("idUser",idUser);
+        context.startService(intentStartCoorSendService);
     }
 }
 

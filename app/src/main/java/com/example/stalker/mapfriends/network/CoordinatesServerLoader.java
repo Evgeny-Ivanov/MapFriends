@@ -36,12 +36,6 @@ public class CoordinatesServerLoader extends AsyncTaskLoader<DataAndStatusMsg> {
         }
     }
 
-    @Override//вызывается при старте активности к которой привязан Loader
-    public void onStartLoading(){
-        super.onStartLoading();
-        Log.d(MainApplication.log, "onStartLoading");
-    }
-
     @Override
     public DataAndStatusMsg loadInBackground(){
         Log.d(MainApplication.log, "loadInBackground");
@@ -63,24 +57,5 @@ public class CoordinatesServerLoader extends AsyncTaskLoader<DataAndStatusMsg> {
 
         return null;
     }
-
-    @Override//вызывается при остановке активности к которой привязан Loader
-    public void onStopLoading(){
-        super.onStopLoading();
-        Log.d(MainApplication.log, "onStopLoading");
-    }
-
-    @Override//лоадер стал неактивным (создан новый а текущий устарел)
-    public void onAbandon(){
-        super.onAbandon();
-        Log.d(MainApplication.log, "onAbandon");
-    }
-
-    @Override//вызывается при уничтожении активности и данного Loader
-    public void onReset(){
-        super.onReset();
-        Log.d(MainApplication.log, "onReset");
-    }
-
 
 }

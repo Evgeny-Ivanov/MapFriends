@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.stalker.mapfriends.R;
 import com.vk.sdk.VKAccessToken;
@@ -33,14 +34,26 @@ public class AuthFragment extends Fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        ImageView authButton = (ImageView)getView().findViewById(R.id.authButton);
-        authButton.setOnClickListener(this);
+        getView().findViewById(R.id.authButton).setOnClickListener(this);
+        getView().findViewById(R.id.authButtonOk).setOnClickListener(this);
+        getView().findViewById(R.id.authButtonFacebook).setOnClickListener(this);
         responseView = (TextView)getView().findViewById(R.id.textAuth);
     }
 
     @Override//нажатие на кнопку входа
     public void onClick(View v) {
-        VKSdk.login(this, "Auth");
+
+        String message = "Когда нибудь сделаем";
+        switch (v.getId()){
+            case R.id.authButton:
+                VKSdk.login(this, "Auth");
+                break;
+            case R.id.authButtonOk:
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            case R.id.authButtonFacebook:
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override//метод вызовется после окончания авторизации
